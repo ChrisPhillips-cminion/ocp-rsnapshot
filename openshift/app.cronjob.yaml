@@ -272,7 +272,7 @@ objects:
 
               restartPolicy: Never
               terminationGracePeriodSeconds: 30
-      schedule: "${CRON_SCHEDULE} ${CRON_SCHEDULE} * * ${CRON_SCHEDULE}"
+      schedule: "${CRON_SCHEDULE} ${CRON_SCHEDULE} * * 1"
       suspend: "${{SUSPEND_CRON}}"
 parameters:
   - name: APP_NAME
