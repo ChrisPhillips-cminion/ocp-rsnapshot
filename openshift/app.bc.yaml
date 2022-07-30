@@ -50,7 +50,7 @@ parameters:
     description: Base Image to build from
     displayName: Base Image
     required: true
-    value: docker.io/ubuntu:jammy
+    value: docker.io/ubuntu:latest
   - name: REPO_NAME
     description: Application repository name
     displayName: Repository Name
