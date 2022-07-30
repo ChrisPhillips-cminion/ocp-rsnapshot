@@ -1,0 +1,176 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: rsnapshot-hourly-TARGETSLUG
+spec:
+  schedule: "5  * * * *"
+  jobTemplate:
+    spec:
+      replicas: 1 # tells deployment to run 2 pods matching the template
+      template:
+        metadata:
+            labels:
+              app: rsnapshot
+        spec:
+            restartPolicy: Never
+            containers:
+              - name: rsnapshot
+                imagePullPolicy: Always
+                image: default-route-openshift-image-registry.apps.shipload.phillips11.cf/backup/rsnap:ny
+                env:
+                - name: UNIT
+                  value: hourly
+                - name: src 
+                  value: SRC
+                - name: target
+                  value: TARGET
+                volumeMounts:
+                - name: ssh
+                  mountPath: /app/.ssh/
+                - name: config-volume
+                  mountPath: /usr/rsnapshot
+                - name: drive
+                  mountPath: /home/randomstore/backup
+            volumes:
+              - name: ssh
+                configMap:
+                    name: ssh-key
+              - name: config-volume
+                configMap:
+                    name: rsnapshot-conf
+              - name: drive
+                persistentVolumeClaim:
+                    claimName: backup-drive
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: rsnapshot-daily-TARGETSLUG
+spec:
+  schedule: "51 1 * * *"
+  jobTemplate:
+    spec:
+      replicas: 1 # tells deployment to run 2 pods matching the template
+      template:
+        metadata:
+            labels:
+              app: rsnapshot
+        spec:
+              restartPolicy: Never
+              containers:
+                - name: rsnapshot
+                  imagePullPolicy: Always
+                  image: default-route-openshift-image-registry.apps.shipload.phillips11.cf/backup/rsnap:ny
+                  env:
+                  - name: UNIT
+                    value: daily
+                  - name: src 
+                    value: SRC
+                  - name: target
+                    value: TARGET
+                  volumeMounts:
+                  - name: ssh
+                    mountPath: /app/.ssh/
+                  - name: config-volume
+                    mountPath: /usr/rsnapshot
+                  - name: drive
+                    mountPath: /home/randomstore/backup
+              volumes:
+              - name: ssh
+                configMap:
+                    name: ssh-key
+              - name: config-volume
+                configMap:
+                    name: rsnapshot-conf
+              - name: drive
+                persistentVolumeClaim:
+                    claimName: backup-drive
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: rsnapshot-weekly-TARGETSLUG
+spec:
+  schedule: "45 2 * * 1"
+  jobTemplate:
+    spec:
+      replicas: 1 # tells deployment to run 2 pods matching the template
+      template:
+        metadata:
+            labels:
+              app: rsnapshot
+        spec:
+            restartPolicy: Never
+            containers:
+                - name: rsnapshot
+                  imagePullPolicy: Always
+                  image: default-route-openshift-image-registry.apps.shipload.phillips11.cf/backup/rsnap:ny
+                  env:
+                  - name: UNIT
+                    value: weekly
+                  - name: src 
+                    value: SRC
+                  - name: target
+                    value: TARGET
+                  volumeMounts:
+                  - name: ssh
+                    mountPath: /app/.ssh/
+                  - name: config-volume
+                    mountPath: /usr/rsnapshot
+                  - name: drive
+                    mountPath: /home/randomstore/backup
+            volumes:
+              - name: ssh
+                configMap:
+                    name: ssh-key
+              - name: config-volume
+                configMap:
+                    name: rsnapshot-conf
+              - name: drive
+                persistentVolumeClaim:
+                    claimName: backup-drive
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: rsnapshot-monthly-TARGETSLUG
+spec:
+  schedule: "45 3 1 * *"
+  jobTemplate:
+    spec:
+      replicas: 1 # tells deployment to run 2 pods matching the template
+      template:
+        metadata:
+            labels:
+              app: rsnapshot
+        spec:
+            restartPolicy: Never
+            containers:
+                - name: rsnapshot
+                  imagePullPolicy: Always
+                  image: default-route-openshift-image-registry.apps.shipload.phillips11.cf/backup/rsnap:ny
+                  env:
+                  - name: UNIT
+                    value: monthly
+                  - name: src 
+                    value: SRC
+                  - name: target
+                    value: TARGET
+                  volumeMounts:
+                  - name: ssh
+                    mountPath: /app/.ssh/
+                  - name: config-volume
+                    mountPath: /usr/rsnapshot
+                  - name: drive
+                    mountPath: /home/randomstore/backup
+            volumes:
+              - name: ssh
+                configMap:
+                    name: ssh-key
+              - name: config-volume
+                configMap:
+                    name: rsnapshot-conf
+              - name: drive
+                persistentVolumeClaim:
+                    claimName: backup-drive
