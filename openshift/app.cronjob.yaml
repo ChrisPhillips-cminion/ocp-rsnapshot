@@ -17,7 +17,7 @@ objects:
   - apiVersion: batch/v1beta1
     kind: CronJob
     metadata:
-      name: "${APP_NAME}-${UNIT}-${TARGET}"
+      name: "${APP_NAME}-hourly-${TARGET}"
     spec:
       concurrencyPolicy: Replace
       failedJobsHistoryLimit: 1
@@ -26,7 +26,7 @@ objects:
       jobTemplate:
         metadata:
           labels:
-            app: "${APP_NAME}-${UNIT}-${TARGET}"
+            app: "${APP_NAME}-hourly-${TARGET}"
             template: "${REPO_NAME}-template"
         spec:
           activeDeadlineSeconds: 600
@@ -36,7 +36,7 @@ objects:
           template:
             metadata:
               labels:
-                app: "${APP_NAME}-${UNIT}-${TARGET}"
+                app: "${APP_NAME}-hourly-${TARGET}"
                 template: "${REPO_NAME}-template"
             spec:
               containers:
@@ -52,7 +52,7 @@ objects:
                       memory: ${MEMORY_LIMIT}
                    env:
                   - name: UNIT
-                    value: ${UNIT}
+                    value: hourly
                   - name: src 
                     value: ${SRC}
                   - name: target
@@ -77,7 +77,202 @@ objects:
 
               restartPolicy: Never
               terminationGracePeriodSeconds: 30
-      schedule: "${CRON_SCHEDULE}"
+      schedule: "${CRON_SCHEDULE} * * * *"
+      suspend: "${{SUSPEND_CRON}}"
+- apiVersion: batch/v1beta1
+    kind: CronJob
+    metadata:
+      name: "${APP_NAME}-daily-${TARGET}"
+    spec:
+      concurrencyPolicy: Replace
+      failedJobsHistoryLimit: 1
+      successfulJobsHistoryLimit: 1
+      startingDeadlineSeconds: 60
+      jobTemplate:
+        metadata:
+          labels:
+            app: "${APP_NAME}-daily-${TARGET}"
+            template: "${REPO_NAME}-template"
+        spec:
+          activeDeadlineSeconds: 600
+          backoffLimit: 0
+          completions: 1
+          parallelism: 1
+          template:
+            metadata:
+              labels:
+                app: "${APP_NAME}-daily-${TARGET}"
+                template: "${REPO_NAME}-template"
+            spec:
+              containers:
+                - name: rsnapshot
+                  image: "${IMAGE_REGISTRY}/${NAMESPACE}/${REPO_NAME}-app:latest"
+                  imagePullPolicy: IfNotPresent
+                  resources:
+                    requests:
+                      cpu: ${CPU_REQUEST}
+                      memory: ${MEMORY_REQUEST}
+                    limits:
+                      cpu: ${CPU_LIMIT}
+                      memory: ${MEMORY_LIMIT}
+                   env:
+                  - name: UNIT
+                    value: daily
+                  - name: src 
+                    value: ${SRC}
+                  - name: target
+                    value: ${TARGET}
+                  volumeMounts:
+                  - name: ssh
+                    mountPath: /app/.ssh/
+                  - name: config-volume
+                    mountPath: /usr/rsnapshot
+                  - name: drive
+                    mountPath: /home/randomstore/backup
+              volumes:
+              - name: ssh
+                configMap:
+                    name: ssh-key
+              - name: config-volume
+                configMap:
+                    name: rsnapshot-conf
+              - name: drive
+                persistentVolumeClaim:
+                    claimName: backup-drive
+
+              restartPolicy: Never
+              terminationGracePeriodSeconds: 30
+      schedule: "${CRON_SCHEDULE} ${CRON_SCHEDULE} * * *"
+      suspend: "${{SUSPEND_CRON}}"
+- apiVersion: batch/v1beta1
+    kind: CronJob
+    metadata:
+      name: "${APP_NAME}-monthly-${TARGET}"
+    spec:
+      concurrencyPolicy: Replace
+      failedJobsHistoryLimit: 1
+      successfulJobsHistoryLimit: 1
+      startingDeadlineSeconds: 60
+      jobTemplate:
+        metadata:
+          labels:
+            app: "${APP_NAME}-monthly-${TARGET}"
+            template: "${REPO_NAME}-template"
+        spec:
+          activeDeadlineSeconds: 600
+          backoffLimit: 0
+          completions: 1
+          parallelism: 1
+          template:
+            metadata:
+              labels:
+                app: "${APP_NAME}-monthly-${TARGET}"
+                template: "${REPO_NAME}-template"
+            spec:
+              containers:
+                - name: rsnapshot
+                  image: "${IMAGE_REGISTRY}/${NAMESPACE}/${REPO_NAME}-app:latest"
+                  imagePullPolicy: IfNotPresent
+                  resources:
+                    requests:
+                      cpu: ${CPU_REQUEST}
+                      memory: ${MEMORY_REQUEST}
+                    limits:
+                      cpu: ${CPU_LIMIT}
+                      memory: ${MEMORY_LIMIT}
+                   env:
+                  - name: UNIT
+                    value: monthly
+                  - name: src 
+                    value: ${SRC}
+                  - name: target
+                    value: ${TARGET}
+                  volumeMounts:
+                  - name: ssh
+                    mountPath: /app/.ssh/
+                  - name: config-volume
+                    mountPath: /usr/rsnapshot
+                  - name: drive
+                    mountPath: /home/randomstore/backup
+              volumes:
+              - name: ssh
+                configMap:
+                    name: ssh-key
+              - name: config-volume
+                configMap:
+                    name: rsnapshot-conf
+              - name: drive
+                persistentVolumeClaim:
+                    claimName: backup-drive
+
+              restartPolicy: Never
+              terminationGracePeriodSeconds: 30
+      schedule: "${CRON_SCHEDULE} ${CRON_SCHEDULE} ${CRON_SCHEDULE} * * "
+      suspend: "${{SUSPEND_CRON}}"
+- apiVersion: batch/v1beta1
+    kind: CronJob
+    metadata:
+      name: "${APP_NAME}-weekly-${TARGET}"
+    spec:
+      concurrencyPolicy: Replace
+      failedJobsHistoryLimit: 1
+      successfulJobsHistoryLimit: 1
+      startingDeadlineSeconds: 60
+      jobTemplate:
+        metadata:
+          labels:
+            app: "${APP_NAME}-weekly-${TARGET}"
+            template: "${REPO_NAME}-template"
+        spec:
+          activeDeadlineSeconds: 600
+          backoffLimit: 0
+          completions: 1
+          parallelism: 1
+          template:
+            metadata:
+              labels:
+                app: "${APP_NAME}-weekly-${TARGET}"
+                template: "${REPO_NAME}-template"
+            spec:
+              containers:
+                - name: rsnapshot
+                  image: "${IMAGE_REGISTRY}/${NAMESPACE}/${REPO_NAME}-app:latest"
+                  imagePullPolicy: IfNotPresent
+                  resources:
+                    requests:
+                      cpu: ${CPU_REQUEST}
+                      memory: ${MEMORY_REQUEST}
+                    limits:
+                      cpu: ${CPU_LIMIT}
+                      memory: ${MEMORY_LIMIT}
+                   env:
+                  - name: UNIT
+                    value: weekly
+                  - name: src 
+                    value: ${SRC}
+                  - name: target
+                    value: ${TARGET}
+                  volumeMounts:
+                  - name: ssh
+                    mountPath: /app/.ssh/
+                  - name: config-volume
+                    mountPath: /usr/rsnapshot
+                  - name: drive
+                    mountPath: /home/randomstore/backup
+              volumes:
+              - name: ssh
+                configMap:
+                    name: ssh-key
+              - name: config-volume
+                configMap:
+                    name: rsnapshot-conf
+              - name: drive
+                persistentVolumeClaim:
+                    claimName: backup-drive
+
+              restartPolicy: Never
+              terminationGracePeriodSeconds: 30
+      schedule: "${CRON_SCHEDULE} ${CRON_SCHEDULE} * * ${CRON_SCHEDULE}"
       suspend: "${{SUSPEND_CRON}}"
 parameters:
   - name: APP_NAME
@@ -104,10 +299,10 @@ parameters:
     required: true
   # https://crontab.guru/every-8-hours
   - name: CRON_SCHEDULE
-    description: CronJob crontab schedule
-    displayName: Crontab schedule
+    description: Identifier for which hour/day/month
+    displayName: Crontab ID
     required: false
-    value: "0 */8 * * *"
+    value: "0"
   - name: SUSPEND_CRON
     description: Suspend this CronJob
     displayName: Suspend CronJob
@@ -133,11 +328,6 @@ parameters:
     displayName: Memory Limit
     required: true
     value: 384Mi
-  - name: UNIT
-    description: hourly/monthly/daily/weekly
-    displayName: Frequency
-    required: true
-    value: "daily"
   - name: SRC
     description: File to backup
     displayName: source
