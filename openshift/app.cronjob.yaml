@@ -50,7 +50,7 @@ objects:
                     limits:
                       cpu: ${CPU_LIMIT}
                       memory: ${MEMORY_LIMIT}
-                   env:
+                  env:
                   - name: UNIT
                     value: hourly
                   - name: src 
@@ -115,7 +115,7 @@ objects:
                     limits:
                       cpu: ${CPU_LIMIT}
                       memory: ${MEMORY_LIMIT}
-                   env:
+                  env:
                   - name: UNIT
                     value: daily
                   - name: src 
@@ -180,7 +180,7 @@ objects:
                     limits:
                       cpu: ${CPU_LIMIT}
                       memory: ${MEMORY_LIMIT}
-                   env:
+                  env:
                   - name: UNIT
                     value: monthly
                   - name: src 
@@ -245,7 +245,7 @@ objects:
                     limits:
                       cpu: ${CPU_LIMIT}
                       memory: ${MEMORY_LIMIT}
-                   env:
+                  env:
                   - name: UNIT
                     value: weekly
                   - name: src 
